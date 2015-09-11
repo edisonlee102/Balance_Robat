@@ -1,0 +1,14 @@
+.\fputc_debug.o: fputc_debug.c
+.\fputc_debug.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\fputc_debug.o: ..\CMSIS\stm32f10x.h
+.\fputc_debug.o: ..\CMSIS\core_cm3.h
+.\fputc_debug.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\fputc_debug.o: ..\CMSIS\system_stm32f10x.h
+.\fputc_debug.o: ..\USER\stm32f10x_conf.h
+.\fputc_debug.o: ..\FWlib\inc\stm32f10x_exti.h
+.\fputc_debug.o: ..\CMSIS\stm32f10x.h
+.\fputc_debug.o: ..\FWlib\inc\stm32f10x_gpio.h
+.\fputc_debug.o: ..\FWlib\inc\stm32f10x_rcc.h
+.\fputc_debug.o: ..\FWlib\inc\stm32f10x_tim.h
+.\fputc_debug.o: ..\FWlib\inc\misc.h
+.\fputc_debug.o: ..\FWlib\inc\stm32f10x_usart.h

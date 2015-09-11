@@ -1,0 +1,11 @@
+.\tim.o: tim.c
+.\tim.o: tim.h
+.\tim.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\tim.o: ..\CMSIS\stm32f10x.h
+.\tim.o: ..\CMSIS\core_cm3.h
+.\tim.o: ..\CMSIS\system_stm32f10x.h
+.\tim.o: ..\USER\stm32f10x_conf.h
+.\tim.o: ..\FWlib\inc\stm32f10x_gpio.h
+.\tim.o: ..\CMSIS\stm32f10x.h
+.\tim.o: ..\FWlib\inc\stm32f10x_rcc.h
+.\tim.o: ..\FWlib\inc\misc.h

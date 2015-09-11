@@ -1,0 +1,13 @@
+.\iic_analog.o: ..\FWlib\src\iic_analog.c
+.\iic_analog.o: ..\CMSIS\stm32f10x.h
+.\iic_analog.o: ..\CMSIS\core_cm3.h
+.\iic_analog.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\iic_analog.o: ..\CMSIS\system_stm32f10x.h
+.\iic_analog.o: ..\USER\stm32f10x_conf.h
+.\iic_analog.o: ..\FWlib\inc\stm32f10x_exti.h
+.\iic_analog.o: ..\CMSIS\stm32f10x.h
+.\iic_analog.o: ..\FWlib\inc\stm32f10x_gpio.h
+.\iic_analog.o: ..\FWlib\inc\stm32f10x_rcc.h
+.\iic_analog.o: ..\FWlib\inc\stm32f10x_tim.h
+.\iic_analog.o: ..\FWlib\inc\misc.h
+.\iic_analog.o: ..\CMSIS\iic_analog.h
