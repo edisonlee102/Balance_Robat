@@ -10,5 +10,5 @@
 .\fputc_debug.o: ..\FWlib\inc\stm32f10x_gpio.h
 .\fputc_debug.o: ..\FWlib\inc\stm32f10x_rcc.h
 .\fputc_debug.o: ..\FWlib\inc\stm32f10x_tim.h
-.\fputc_debug.o: ..\FWlib\inc\misc.h
 .\fputc_debug.o: ..\FWlib\inc\stm32f10x_usart.h
+.\fputc_debug.o: ..\FWlib\inc\misc.h

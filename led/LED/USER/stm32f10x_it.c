@@ -23,9 +23,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
 #include <stdio.h>
+#include "stdlib.h"
+#include "string.h"
 extern int TimingDelay;
 extern float Duty;
 extern int Direction;
+unsigned char dir;
+bool ble_lock;
 /** @addtogroup Template_Project
   * @{
   */
@@ -145,257 +149,333 @@ void SysTick_Handler(void)
 {
 		TimingDelay_Decrement();
 }
+
+int count;
+#define TIME_PERIOD 350
 void Motor_duty_control()
 {
+		static float IF = 1;		
 		TIM_OCInitTypeDef TIM_OCInitStructure;
+		
+		if(count != 0)
+		{
+				IF = 1/(count+1);
+		}else{
+				IF = 1;
+		}
+		if(ble_lock)
+			Duty = 1;
 		if(Duty == 1)
 		{
-				/* PWM1 Mode configuration: Channel3 */
+				/* PWM1 Mode configuration: Channel1 */
 				TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 				
-				TIM_OCInitStructure.TIM_Pulse = 66;
+				TIM_OCInitStructure.TIM_Pulse = (int)66*IF;
 				TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-				TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-				/* PWM1 Mode configuration: Channel4 */
+				TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+				/* PWM1 Mode configuration: Channel2 */
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-				TIM_OCInitStructure.TIM_Pulse = 66;
-				TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+				TIM_OCInitStructure.TIM_Pulse = (int)66*IF;
+				TIM_OC2Init(TIM4, &TIM_OCInitStructure);
 				
 				
-				TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-				TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+				TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+				TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 				
-				TIM_ARRPreloadConfig(TIM3, ENABLE);
-				/* TIM3 enable counter */
-				TIM_Cmd(TIM3, ENABLE);
+				TIM_ARRPreloadConfig(TIM4, ENABLE);
+				/* TIM4 enable counter */
+				TIM_Cmd(TIM4, ENABLE);
 		}else if(Duty == 2)
 		{
+				/* PWM1 Mode configuration: Channel1 */
 				TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 				
-				TIM_OCInitStructure.TIM_Pulse = 133;
+				TIM_OCInitStructure.TIM_Pulse = (int)133*IF;
 				TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-				TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-				/* PWM1 Mode configuration: Channel4 */
+				TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+				/* PWM1 Mode configuration: Channel2 */
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-				TIM_OCInitStructure.TIM_Pulse = 133;
-				TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+				TIM_OCInitStructure.TIM_Pulse = (int)133*IF;
+				TIM_OC2Init(TIM4, &TIM_OCInitStructure);
 				
 				
-				TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-				TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+				TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+				TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 				
-				TIM_ARRPreloadConfig(TIM3, ENABLE);
-				/* TIM3 enable counter */
-				TIM_Cmd(TIM3, ENABLE);
+				TIM_ARRPreloadConfig(TIM4, ENABLE);
+				/* TIM4 enable counter */
+				TIM_Cmd(TIM4, ENABLE);
 		}
 		else if(Duty == 3)
 		{
+				/* PWM1 Mode configuration: Channel1 */
 				TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 				
-				TIM_OCInitStructure.TIM_Pulse = 200;
+				TIM_OCInitStructure.TIM_Pulse = (int)200*IF;
 				TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-				TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-				/* PWM1 Mode configuration: Channel4 */
+				TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+				/* PWM1 Mode configuration: Channel2 */
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-				TIM_OCInitStructure.TIM_Pulse = 200;
-				TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+				TIM_OCInitStructure.TIM_Pulse = (int)200*IF;
+				TIM_OC2Init(TIM4, &TIM_OCInitStructure);
 				
 				
-				TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-				TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+				TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+				TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 				
-				TIM_ARRPreloadConfig(TIM3, ENABLE);
-				/* TIM3 enable counter */
-				TIM_Cmd(TIM3, ENABLE);
+				TIM_ARRPreloadConfig(TIM4, ENABLE);
+				/* TIM4 enable counter */
+				TIM_Cmd(TIM4, ENABLE);
 		}
 		else if(Duty == 4)
 		{
+				/* PWM1 Mode configuration: Channel1 */
 				TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 				
-				TIM_OCInitStructure.TIM_Pulse = 266;
+				TIM_OCInitStructure.TIM_Pulse = (int)266*IF;
 				TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-				TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-				/* PWM1 Mode configuration: Channel4 */
+				TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+				/* PWM1 Mode configuration: Channel2 */
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-				TIM_OCInitStructure.TIM_Pulse = 266;
-				TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+				TIM_OCInitStructure.TIM_Pulse = (int)266*IF;
+				TIM_OC2Init(TIM4, &TIM_OCInitStructure);
 				
 				
-				TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-				TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+				TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+				TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 				
-				TIM_ARRPreloadConfig(TIM3, ENABLE);
-				/* TIM3 enable counter */
-				TIM_Cmd(TIM3, ENABLE);
+				TIM_ARRPreloadConfig(TIM4, ENABLE);
+				/* TIM4 enable counter */
+				TIM_Cmd(TIM4, ENABLE);
 		}
 		else if(Duty == 5)
 		{
+				/* PWM1 Mode configuration: Channel1 */
 				TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 				
-				TIM_OCInitStructure.TIM_Pulse = 333;
+				TIM_OCInitStructure.TIM_Pulse = (int)333*IF;
 				TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-				TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-				/* PWM1 Mode configuration: Channel4 */
+				TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+				/* PWM1 Mode configuration: Channel2 */
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-				TIM_OCInitStructure.TIM_Pulse = 333;
-				TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+				TIM_OCInitStructure.TIM_Pulse = (int)333*IF;
+				TIM_OC2Init(TIM4, &TIM_OCInitStructure);
 				
 				
-				TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-				TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+				TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+				TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 				
-				TIM_ARRPreloadConfig(TIM3, ENABLE);
-				/* TIM3 enable counter */
-				TIM_Cmd(TIM3, ENABLE);
+				TIM_ARRPreloadConfig(TIM4, ENABLE);
+				/* TIM4 enable counter */
+				TIM_Cmd(TIM4, ENABLE);
 		}
 		else if(Duty == 6)
 		{
+				/* PWM1 Mode configuration: Channel1 */
 				TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 				
-				TIM_OCInitStructure.TIM_Pulse = 400;
+				TIM_OCInitStructure.TIM_Pulse = (int)400*IF;
 				TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-				TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-				/* PWM1 Mode configuration: Channel4 */
+				TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+				/* PWM1 Mode configuration: Channel2 */
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-				TIM_OCInitStructure.TIM_Pulse = 400;
-				TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+				TIM_OCInitStructure.TIM_Pulse = (int)400*IF;
+				TIM_OC2Init(TIM4, &TIM_OCInitStructure);
 				
 				
-				TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-				TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+				TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+				TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 				
-				TIM_ARRPreloadConfig(TIM3, ENABLE);
-				/* TIM3 enable counter */
-				TIM_Cmd(TIM3, ENABLE);
+				TIM_ARRPreloadConfig(TIM4, ENABLE);
+				/* TIM4 enable counter */
+				TIM_Cmd(TIM4, ENABLE);
 		}
 		else if(Duty == 7)
 		{
+				/* PWM1 Mode configuration: Channel1 */
 				TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 				
-				TIM_OCInitStructure.TIM_Pulse = 466;
+				TIM_OCInitStructure.TIM_Pulse = (int)466*IF;
 				TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-				TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-				/* PWM1 Mode configuration: Channel4 */
+				TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+				/* PWM1 Mode configuration: Channel2 */
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-				TIM_OCInitStructure.TIM_Pulse = 466;
-				TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+				TIM_OCInitStructure.TIM_Pulse = (int)466*IF;
+				TIM_OC2Init(TIM4, &TIM_OCInitStructure);
 				
 				
-				TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-				TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+				TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+				TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 				
-				TIM_ARRPreloadConfig(TIM3, ENABLE);
-				/* TIM3 enable counter */
-				TIM_Cmd(TIM3, ENABLE);
+				TIM_ARRPreloadConfig(TIM4, ENABLE);
+				/* TIM4 enable counter */
+				TIM_Cmd(TIM4, ENABLE);
 		}
 		else if(Duty == 8)
 		{
+				/* PWM1 Mode configuration: Channel1 */
 				TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 				
-				TIM_OCInitStructure.TIM_Pulse = 533;
+				TIM_OCInitStructure.TIM_Pulse = (int)533*IF;
 				TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-				TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-				/* PWM1 Mode configuration: Channel4 */
+				TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+				/* PWM1 Mode configuration: Channel2 */
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-				TIM_OCInitStructure.TIM_Pulse = 533;
-				TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+				TIM_OCInitStructure.TIM_Pulse = (int)533*IF;
+				TIM_OC2Init(TIM4, &TIM_OCInitStructure);
 				
 				
-				TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-				TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+				TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+				TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 				
-				TIM_ARRPreloadConfig(TIM3, ENABLE);
-				/* TIM3 enable counter */
-				TIM_Cmd(TIM3, ENABLE);
+				TIM_ARRPreloadConfig(TIM4, ENABLE);
+				/* TIM4 enable counter */
+				TIM_Cmd(TIM4, ENABLE);
 		}
 		else if(Duty == 9)
 		{
+				/* PWM1 Mode configuration: Channel1 */
 				TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 				
-				TIM_OCInitStructure.TIM_Pulse = 599;
+				TIM_OCInitStructure.TIM_Pulse = (int)599*IF;
 				TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-				TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-				/* PWM1 Mode configuration: Channel4 */
+				TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+				/* PWM1 Mode configuration: Channel2 */
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-				TIM_OCInitStructure.TIM_Pulse = 599;
-				TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+				TIM_OCInitStructure.TIM_Pulse = (int)599*IF;
+				TIM_OC2Init(TIM4, &TIM_OCInitStructure);
 				
 				
-				TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-				TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+				TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+				TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 				
-				TIM_ARRPreloadConfig(TIM3, ENABLE);
-				/* TIM3 enable counter */
-				TIM_Cmd(TIM3, ENABLE);
+				TIM_ARRPreloadConfig(TIM4, ENABLE);
+				/* TIM4 enable counter */
+				TIM_Cmd(TIM4, ENABLE);
 		}
 		else if(Duty == 10)
 		{
+				/* PWM1 Mode configuration: Channel1 */
 				TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 				
-				TIM_OCInitStructure.TIM_Pulse = 666;
+				TIM_OCInitStructure.TIM_Pulse = (int)666*IF;
 				TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-				TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-				/* PWM1 Mode configuration: Channel4 */
+				TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+				/* PWM1 Mode configuration: Channel2 */
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-				TIM_OCInitStructure.TIM_Pulse = 666;
-				TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+				TIM_OCInitStructure.TIM_Pulse = (int)666*IF;
+				TIM_OC2Init(TIM4, &TIM_OCInitStructure);
 				
 				
-				TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-				TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+				TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+				TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 				
-				TIM_ARRPreloadConfig(TIM3, ENABLE);
-				/* TIM3 enable counter */
-				TIM_Cmd(TIM3, ENABLE);
+				TIM_ARRPreloadConfig(TIM4, ENABLE);
+				/* TIM4 enable counter */
+				TIM_Cmd(TIM4, ENABLE);
 		}else if(Duty == 0)
 		{
+				/* PWM1 Mode configuration: Channel1 */
 				TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 				
 				TIM_OCInitStructure.TIM_Pulse = 0;
 				TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-				TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-				/* PWM1 Mode configuration: Channel4 */
+				TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+				/* PWM1 Mode configuration: Channel2 */
 				TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 				TIM_OCInitStructure.TIM_Pulse = 0;
-				TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+				TIM_OC2Init(TIM4, &TIM_OCInitStructure);
 				
 				
-				TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-				TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+				TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+				TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 				
-				TIM_ARRPreloadConfig(TIM3, ENABLE);
-				TIM_Cmd(TIM3, ENABLE);
+				TIM_ARRPreloadConfig(TIM4, ENABLE);
+				TIM_Cmd(TIM4, ENABLE);
 		}
 }
+
 void Motor_dir_control()
 {
-		if(Direction == 0){
-				GPIO_SetBits(GPIOB,GPIO_Pin_15);
-				//GPIO_ResetBits(GPIOB,GPIO_Pin_14);
-				GPIO_ResetBits(GPIOB,GPIO_Pin_10);
-				GPIO_SetBits(GPIOB,GPIO_Pin_13);
-				//GPIO_ResetBits(GPIOB,GPIO_Pin_12);
-				GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+		static int ignore = TIME_PERIOD,pre_dir;
+	
+		if(pre_dir == Direction){
+			ignore--;
+		if(ignore == 0){
+					ignore = TIME_PERIOD;
+					count = 0;
 		}
-		if(Direction == 1)
+		}else{
+			ignore = TIME_PERIOD;
+			count++;
+		}
+		pre_dir = Direction;
+		//printf("count = %d\n",count);
+		if(dir != 0 && ble_lock)
 		{
-				GPIO_ResetBits(GPIOB, GPIO_Pin_15);
-				//GPIO_SetBits(GPIOB,GPIO_Pin_14);
-				GPIO_SetBits(GPIOB,GPIO_Pin_10);
-				GPIO_ResetBits(GPIOB,GPIO_Pin_13);
-				//GPIO_SetBits(GPIOB,GPIO_Pin_12);
-				GPIO_SetBits(GPIOB,GPIO_Pin_11);
+					switch(dir)
+				{
+					case '1':
+									GPIO_SetBits(GPIOB,GPIO_Pin_4);
+									GPIO_ResetBits(GPIOB,GPIO_Pin_5);
+									GPIO_SetBits(GPIOB,GPIO_Pin_12);
+									GPIO_ResetBits(GPIOA,GPIO_Pin_15);
+									printf("forward\n");
+									break;
+					case '2':
+						
+									break;
+					case '3':
+						
+									break;
+					case '4':
+						
+									break;
+					case '5':
+									GPIO_ResetBits(GPIOB, GPIO_Pin_4);
+									GPIO_SetBits(GPIOB,GPIO_Pin_5);
+									GPIO_ResetBits(GPIOB,GPIO_Pin_12);
+									GPIO_SetBits(GPIOA,GPIO_Pin_15);
+									printf("backward\n");
+									break;
+					case '6':
+						
+									break;
+					case '7':
+						
+									break;
+					case '8':
+						
+									break;
+					default:
+									printf("stop\n");
+									dir = 0;
+									break;
+				}
+		}
+		if(Direction == 0 && !ble_lock){
+				GPIO_SetBits(GPIOB,GPIO_Pin_4);
+				GPIO_ResetBits(GPIOB,GPIO_Pin_5);
+				GPIO_SetBits(GPIOB,GPIO_Pin_12);
+				GPIO_ResetBits(GPIOA,GPIO_Pin_15);
+		}
+		if(Direction == 1 && !ble_lock)
+		{
+				GPIO_ResetBits(GPIOB, GPIO_Pin_4);
+				GPIO_SetBits(GPIOB,GPIO_Pin_5);
+				GPIO_ResetBits(GPIOB,GPIO_Pin_12);
+				GPIO_SetBits(GPIOA,GPIO_Pin_15);
 		}
 }
 
@@ -404,8 +484,8 @@ void TIM4_IRQHandler(void)
 		vu16 capture=0;
 		if(TIM_GetITStatus(TIM4,TIM_IT_CC1) != RESET)
 		{
-				Motor_duty_control();
 				Motor_dir_control();
+				Motor_duty_control();
 				capture = TIM_GetCapture1(TIM4);
 				TIM_ClearITPendingBit(TIM4,TIM_IT_CC1);
 		}
@@ -420,6 +500,20 @@ extern void ApplyCrispOutputs(void);
 void TIM2_IRQHandler(void)
 {
 	vu16 capture=0;
+	/*static int ignore = TIME_PERIOD,pre_dir;
+	
+		if(pre_dir == Direction){
+			ignore--;
+			if(ignore == 0){
+					ignore = TIME_PERIOD;
+					count = 0;
+			}
+		}else{
+			ignore = TIME_PERIOD;
+			count++;
+		}
+		pre_dir = Direction;
+	printf("count = %d\n",count);*/
 	if(TIM_GetITStatus(TIM2,TIM_IT_CC1) != RESET)
 	{
 			Sensor_fusion();
@@ -473,6 +567,25 @@ void EXTI1_IRQHandler(void)
 		}
 		pre_duty = Duty;
 		EXTI_ClearITPendingBit(EXTI_Line1);
+}
+
+void USART1_IRQHandler(){
+		static unsigned char GetData;
+		ble_lock = 0;
+		if(USART_GetFlagStatus(USART1,USART_FLAG_TC)!=RESET)
+				USART_ClearITPendingBit(USART1,USART_FLAG_TC);
+		if((USART_GetFlagStatus(USART1,USART_FLAG_RXNE)!=RESET)){
+				USART_ClearITPendingBit(USART1,USART_FLAG_RXNE);
+				 GetData = USART_ReceiveData(USART1);
+			if(GetData){
+				if(GetData == '0')
+					ble_lock = FALSE ;
+				else if(GetData >= '1' && GetData <='8')
+					ble_lock = TRUE ;
+				//printf("GetData = %c\n",GetData);
+				dir = GetData;
+			}
+		}
 }
 
 /******************************************************************************/

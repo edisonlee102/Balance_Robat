@@ -10,4 +10,5 @@
 .\led.o: ..\FWlib\inc\stm32f10x_gpio.h
 .\led.o: ..\FWlib\inc\stm32f10x_rcc.h
 .\led.o: ..\FWlib\inc\stm32f10x_tim.h
+.\led.o: ..\FWlib\inc\stm32f10x_usart.h
 .\led.o: ..\FWlib\inc\misc.h

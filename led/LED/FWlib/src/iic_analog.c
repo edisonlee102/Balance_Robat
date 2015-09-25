@@ -1,28 +1,24 @@
 #include "stm32f10x.h"
 #include "iic_analog.h"
 
-
-/************************************************************/
-/*模拟IIC引脚初始化函数*/
-/************************************************************/
 void IIC_GPIO_Configuration( GPIO_TypeDef * GPIOx_SDA , uint16_t SDA_Pin , GPIO_TypeDef * GPIOx_SCL , uint16_t SCL_Pin )
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	uint32_t RCC_GPIOx_SDA = 0;
 	uint32_t RCC_GPIOx_SCL = 0;
 
-	//得到滤波后的引脚端口
+
 	RCC_GPIOx_SDA = GPIO_Filter( GPIOx_SDA );
 	RCC_GPIOx_SCL = GPIO_Filter( GPIOx_SCL );
 	
-	//使能时钟
+
 	/* Enable I2C and GPIO clocks */
     //RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
     //RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_GPIOx_SDA,ENABLE);
 	  RCC_APB2PeriphClockCmd(RCC_GPIOx_SCL,ENABLE);
 
-	//配置引脚
+
 	GPIO_InitStructure.GPIO_Pin = SDA_Pin;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_Out_OD;
@@ -33,7 +29,7 @@ void IIC_GPIO_Configuration( GPIO_TypeDef * GPIOx_SDA , uint16_t SDA_Pin , GPIO_
 	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_Out_OD;
 	GPIO_Init(GPIOx_SCL, &GPIO_InitStructure);
 
-	//初始化ICC的模式
+
 	SET_SDA;
 	SET_SCL;  
 }
@@ -47,10 +43,7 @@ void IIC_Delay(void)
 	while( i-- );
 }
 
-/*******************************************************************
-TWI_START
-发送启动数据
-*******************************************************************/
+
 u8 IIC_Start(void)
 {
 	SET_SDA;
@@ -78,10 +71,7 @@ u8 IIC_Start(void)
 	return IIC_BUS_READY;
 }
 
-/*******************************************************************
-TWI_STOP
-发送停止数据
-*******************************************************************/
+
 void IIC_Stop(void)
 {
 	RESET_SDA;
@@ -94,10 +84,7 @@ void IIC_Stop(void)
 	IIC_DELAY;
 }
 
-/*******************************************************************************
-* 函数名称:TWI_SendNACK                                                                     
-* 描    述:收到数据,发送NACK                                                                                                                                       
- *******************************************************************************/
+
 void IIC_SendNACK(void)
 {
 	RESET_SDA;
@@ -108,10 +95,7 @@ void IIC_SendNACK(void)
 	IIC_DELAY; 
 }
 
-/*******************************************************************************
-* 函数名称:TWI_SendACK                                                                     
-* 描    述:收到数据,发送ACK                                                                                                                                        
-*******************************************************************************/
+
 void IIC_SendACK(void)
 {
 	SET_SDA;
@@ -122,17 +106,14 @@ void IIC_SendACK(void)
 	IIC_DELAY;
 }
 
-/*******************************************************************************
- * 函数名称:TWI_SendByte                                                                     
- * 描    述:发送一个字节                                                                                                                                      
- *******************************************************************************/
+
 u8 IIC_SendByte(u8 Data)
 {
 	 u8 i;
 	 RESET_SCL;
 	 for(i=0;i<8;i++)
 	 {  
-		//---------数据建立----------
+
 		if(Data&0x80)
 		{
 			SET_SDA;
@@ -143,15 +124,14 @@ u8 IIC_SendByte(u8 Data)
 		} 
 		Data<<=1;
 		IIC_DELAY;
-		//---数据建立保持一定延时----
-		//----产生一个上升沿[正脉冲] 
+
 		SET_SCL;
 		IIC_DELAY;
 		RESET_SCL;
-		IIC_DELAY;//延时,防止SCL还没变成低时改变SDA,从而产生START/STOP信号
+		IIC_DELAY;
 		//---------------------------   
 	 }
-	 //接收从机的应答 
+	
 	 SET_SDA; 
 	 IIC_DELAY;
 	 SET_SCL;
@@ -168,10 +148,6 @@ u8 IIC_SendByte(u8 Data)
 	 }    
 }
 
-/*******************************************************************************
- * 函数名称:TWI_ReceiveByte                                                                     
- * 描    述:接收一个字节                                                                                                                                       
- *******************************************************************************/
 u8 IIC_RecvByte(void)
 {
 	 u8 i,Dat = 0;
@@ -180,47 +156,42 @@ u8 IIC_RecvByte(void)
 	 Dat=0;
 	 for(i=0;i<8;i++)
 	 {
-		SET_SCL;//产生时钟上升沿[正脉冲],让从机准备好数据 
+		SET_SCL;
 		IIC_DELAY; 
 		Dat<<=1;
-		if(IIC_SDA_STATE) //读引脚状态
+		if(IIC_SDA_STATE) 
 		{
 			Dat|=0x01; 
 		}   
-		RESET_SCL;//准备好再次接收数据  
-		IIC_DELAY;//等待数据准备好         
+		RESET_SCL;
+		IIC_DELAY;  
 	 }
 	 return Dat;
 }
 
-/******单字节写入*******************************************/
 void Single_Write_IIC(u8 SlaveAddress,u8 REG_Address,u8 REG_data)
 {
-    IIC_Start();                  //起始信号
-    IIC_SendByte(SlaveAddress);   //发送设备地址+写信号
-    IIC_SendByte(REG_Address);    //内部寄存器地址， //请参考中文pdf22页 
-    IIC_SendByte(REG_data);       //内部寄存器数据， //请参考中文pdf22页 
-    IIC_Stop();                   //发送停止信号
+    IIC_Start();                 
+    IIC_SendByte(SlaveAddress);  
+    IIC_SendByte(REG_Address);    
+    IIC_SendByte(REG_data);       
+    IIC_Stop();                   
 }
 
-/********单字节读取*****************************************/
 u8 Single_Read_IIC(u8 SlaveAddress, u8 REG_Address)
 {  
 	u8 REG_data;
-    IIC_Start();                          //起始信号
-    IIC_SendByte(SlaveAddress);           //发送设备地址+写信号
-    IIC_SendByte(REG_Address);            //发送存储单元地址，//从0开始	
-    IIC_Start();                          //起始信号
-    IIC_SendByte(SlaveAddress+1);         //发送设备地址+读信号
-    REG_data = IIC_RecvByte();              //读出寄存器数据
+    IIC_Start();                         
+    IIC_SendByte(SlaveAddress);          
+    IIC_SendByte(REG_Address);            
+    IIC_Start();                         
+    IIC_SendByte(SlaveAddress+1);        
+    REG_data = IIC_RecvByte();              
 	IIC_SendACK();   
-	IIC_Stop();                           //停止信号
+	IIC_Stop();                         
     return REG_data; 
 }
 
-/*******************************************************************
-引脚端口过滤器 返回值为 引脚端口的时钟编号
-*******************************************************************/
 uint16_t GPIO_Filter( GPIO_TypeDef * GPIOx )
 {	 
 	uint32_t RCC_GPIOx = 0; 

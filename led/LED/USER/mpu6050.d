@@ -9,6 +9,7 @@
 .\mpu6050.o: ..\FWlib\inc\stm32f10x_gpio.h
 .\mpu6050.o: ..\FWlib\inc\stm32f10x_rcc.h
 .\mpu6050.o: ..\FWlib\inc\stm32f10x_tim.h
+.\mpu6050.o: ..\FWlib\inc\stm32f10x_usart.h
 .\mpu6050.o: ..\FWlib\inc\misc.h
 .\mpu6050.o: ..\CMSIS\MPU6050.h
 .\mpu6050.o: ..\CMSIS\iic_analog.h

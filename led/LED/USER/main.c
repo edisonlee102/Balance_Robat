@@ -19,6 +19,7 @@ struct Kalman kalmanX, kalmanY; // Create the Kalman instances
 double compAngleX, compAngleY, compAngleZ; // Calculated angle using a complementary filter
 double Cal_acc_x,Cal_acc_y,Cal_acc_z;
 float X_Angular_velocity = 0;
+float Y_Angular_velocity = 0;
 float Duty; //duty cycle percentage
 int Direction;    //1:CW 0:CCW
 #define RAD_TO_DEG 57.295779513082320876798154814105
@@ -41,10 +42,10 @@ int DataBase[] =
     // First input have 7 memberfunctions.
     -90, -90, -44, -25, 90,  4,  // NB -0
     -44, -25, -25, -15,  4,  9,  // NM -1
-    -25, -15, -15,   0,  9,  6,  // NS -2
-    -15, -0 ,  0 ,  10,  6,  9,  // ZO -3
-    0  , 10 ,  10,  16,  9, 15,  // PS -4
-    10 , 16 ,  16,  30,  4,  6,  // PM -5
+    -25, -8 , -8 ,   0,  5, 11,  // NS -2
+    -8 , -0 ,  0 ,  8 , 11, 11,  // ZO -3
+    0  ,  8 ,  8 ,  16, 11, 11,  // PS -4
+    8  , 16 ,  16,  30, 11,  6,  // PM -5
     16 , 30 ,  90,  90,  6, 90,  // PB -6
 		7,
     // Second input have 7 memberfunctions.
@@ -78,61 +79,61 @@ char RuleBase[] =
 {
     /*w and roll direction opposite.*/
     49, // Rule Base contains 11 rules.
-    0 , 7 ,255, 14,  255, // Rule 0: If x is NB and y is NB then z is o/p_3
-    1 , 7 ,255, 14,  255, // Rule 1: If x is NB and y is NM then z is o/p_3
-    2 , 7 ,255, 14,  255, // Rule 2: If x is NB and y is NS then z is o/p_3 <xxxx>
-    3 , 7 ,255, 19,  255, // Rule 3: If x is NB and y is Z0 then z is o/p_1 <xxxx>
-    4 , 7 ,255, 20,  255, // Rule 4: If x is NB and y is PS then z is o/p_1 <!!!!erase inertia>
-    5 , 7 ,255, 20,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 <!!!!erase inertia>
+    0 , 7 ,255, 17,  255, // Rule 0: If x is NB and y is NB then z is o/p_3
+    1 , 7 ,255, 18,  255, // Rule 1: If x is NB and y is NM then z is o/p_3
+    2 , 7 ,255, 27,  255, // Rule 2: If x is NB and y is NS then z is o/p_3 <xxxx>
+    3 , 7 ,255, 27,  255, // Rule 3: If x is NB and y is Z0 then z is o/p_1 <xxxx>
+    4 , 7 ,255, 27,  255, // Rule 4: If x is NB and y is PS then z is o/p_1 <!!!!erase inertia>
+    5 , 7 ,255, 28,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 <!!!!erase inertia>
     6 , 7 ,255, 22,  255, // Rule 6: If x is NB and y is PB then z is o/p_1 <!!!!not erase inertia>
 	
-    0 , 8 ,255, 14,  255, // Rule 7: If x is NM and y is NB then z is o/p_4
-    1 , 8 ,255, 14,  255, // Rule 8: If x is NM and y is NM then z is o/p_4
-    2 , 8 ,255, 14,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
-    3 , 8 ,255, 16,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
-		4 , 8 ,255, 20,  255, // Rule 10: If x is NM and y is Z0 then z is o/p_3<!!!!erase inertia>
-		5 , 8 ,255, 24,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 <!!!!not erase inertia>
-    6 , 8 ,255, 25,  255, // Rule 6: If x is NB and y is PB then z is o/p_1 <!!!!not erase inertia>
+    0 , 8 ,255, 17,  255, // Rule 7: If x is NM and y is NB then z is o/p_4
+    1 , 8 ,255, 18,  255, // Rule 8: If x is NM and y is NM then z is o/p_4
+    2 , 8 ,255, 27,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
+    3 , 8 ,255, 27,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
+		4 , 8 ,255, 28,  255, // Rule 10: If x is NM and y is Z0 then z is o/p_3<!!!!erase inertia>
+		5 , 8 ,255, 28,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 <!!!!not erase inertia>
+    6 , 8 ,255, 21,  255, // Rule 6: If x is NB and y is PB then z is o/p_1 <!!!!not erase inertia>
 	
-		0 , 9 ,255, 14,  255, // Rule 7: If x is NM and y is NB then z is o/p_4
-    1 , 9 ,255, 14,  255, // Rule 8: If x is NM and y is NM then z is o/p_4
-    2 , 9 ,255, 16,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
-    3 , 9 ,255, 19,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
-		4 , 9 ,255, 20,  255, // Rule 10: If x is NM and y is Z0 then z is o/p_3<!!!!erase inertia>
-		5 , 9 ,255, 24,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 <!!!!not erase inertia>
-    6 , 9 ,255, 25,  255, // Rule 6: If x is NB and y is PB then z is o/p_1 <!!!!not erase inertia>
+		0 , 9 ,255, 18,  255, // Rule 7: If x is NM and y is NB then z is o/p_4
+    1 , 9 ,255, 19,  255, // Rule 8: If x is NM and y is NM then z is o/p_4
+    2 , 9 ,255, 27,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
+    3 , 9 ,255, 27,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
+		4 , 9 ,255, 28,  255, // Rule 10: If x is NM and y is Z0 then z is o/p_3<!!!!erase inertia>
+		5 , 9 ,255, 22,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 <!!!!not erase inertia>
+    6 , 9 ,255, 22,  255, // Rule 6: If x is NB and y is PB then z is o/p_1 <!!!!not erase inertia>
 
-		0 , 10 ,255, 17,  255, // Rule 7: If x is NM and y is NB then z is o/p_4
-    1 , 10 ,255, 18,  255, // Rule 8: If x is NM and y is NM then z is o/p_4
-    2 , 10 ,255, 19,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
+		0 , 10 ,255, 18,  255, // Rule 7: If x is NM and y is NB then z is o/p_4
+    1 , 10 ,255, 19,  255, // Rule 8: If x is NM and y is NM then z is o/p_4
+    2 , 10 ,255, 27,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
     3 , 10 ,255, 20,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
-		4 , 10 ,255, 21,  255, // Rule 10: If x is NM and y is Z0 then z is o/p_3
-		5 , 10 ,255, 22,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 
-    6 , 10 ,255, 23,  255, // Rule 6: If x is NB and y is PB then z is o/p_1 
+		4 , 10 ,255, 28,  255, // Rule 10: If x is NM and y is Z0 then z is o/p_3
+		5 , 10 ,255, 21,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 
+    6 , 10 ,255, 22,  255, // Rule 6: If x is NB and y is PB then z is o/p_1 
 		
-		0 , 11 ,255, 14,  255, // Rule 7: If x is NM and y is NB then z is o/p_4 <!!!!not erase inertia>
-    1 , 11 ,255, 14,  255, // Rule 8: If x is NM and y is NM then z is o/p_4
-    2 , 11 ,255, 19,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
-    3 , 11 ,255, 21,  255, // Rule 9: If x is NM and y is NS then z is o/p_3 <!!!!erase inertia>
-		4 , 11 ,255, 22,  255, // Rule 10: If x is NM and y is Z0 then z is o/p_3
-		5 , 11 ,255, 25,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 
-    6 , 11 ,255, 25,  255, // Rule 6: If x is NB and y is PB then z is o/p_1 
+		0 , 11 ,255, 18,  255, // Rule 7: If x is NM and y is NB then z is o/p_4 <!!!!not erase inertia>
+    1 , 11 ,255, 19,  255, // Rule 8: If x is NM and y is NM then z is o/p_4
+    2 , 11 ,255, 20,  255, // Rule 9: If x is NM and y is NS then z is o/p_3
+    3 , 11 ,255, 28,  255, // Rule 9: If x is NM and y is NS then z is o/p_3 <!!!!erase inertia>
+		4 , 11 ,255, 28,  255, // Rule 10: If x is NM and y is Z0 then z is o/p_3
+		5 , 11 ,255, 21,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 
+    6 , 11 ,255, 23,  255, // Rule 6: If x is NB and y is PB then z is o/p_1 
 
-		0 , 12 ,255, 14,  255, // Rule 7: If x is NM and y is NB then z is o/p_4 <!!!!not erase inertia>
-    1 , 12 ,255, 15,  255, // Rule 8: If x is NM and y is NM then z is o/p_4 <!!!!not erase inertia>
-    2 , 12 ,255, 20,  255, // Rule 9: If x is NM and y is NS then z is o/p_3 <!!!!erase inertia>
-    3 , 12 ,255, 21,  255, // Rule 9: If x is NM and y is NS then z is o/p_3 <!!!!erase inertia>
-		4 , 12 ,255, 24,  255, // Rule 10: If x is NM and y is Z0 then z is o/p_3
-		5 , 12 ,255, 25,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 
-    6 , 12 ,255, 25,  255, // Rule 6: If x is NB and y is PB then z is o/p_1
+		0 , 12 ,255, 19,  255, // Rule 7: If x is NM and y is NB then z is o/p_4 <!!!!not erase inertia>
+    1 , 12 ,255, 27,  255, // Rule 8: If x is NM and y is NM then z is o/p_4 <!!!!not erase inertia>
+    2 , 12 ,255, 28,  255, // Rule 9: If x is NM and y is NS then z is o/p_3 <!!!!erase inertia>
+    3 , 12 ,255, 28,  255, // Rule 9: If x is NM and y is NS then z is o/p_3 <!!!!erase inertia>
+		4 , 12 ,255, 21,  255, // Rule 10: If x is NM and y is Z0 then z is o/p_3
+		5 , 12 ,255, 22,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 
+    6 , 12 ,255, 23,  255, // Rule 6: If x is NB and y is PB then z is o/p_1
 		
-		0 , 13 ,255, 15,  255, // Rule 7: If x is NM and y is NB then z is o/p_4 
-    1 , 13 ,255, 16,  255, // Rule 8: If x is NM and y is NM then z is o/p_4 <!!!!not erase inertia>
-    2 , 13 ,255, 20,  255, // Rule 9: If x is NM and y is NS then z is o/p_3 <!!!!erase inertia>
-    3 , 13 ,255, 21,  255, // Rule 9: If x is NM and y is NS then z is o/p_3 <!!!!erase inertia>
-		4 , 13 ,255, 24,  255, // Rule 10: If x is NM and y is Z0 then z is o/p_3
-		5 , 13 ,255, 25,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 
-    6 , 13 ,255, 25,  255, // Rule 6: If x is NB and y is PB then z is o/p_1
+		0 , 13 ,255, 19,  255, // Rule 7: If x is NM and y is NB then z is o/p_4 
+    1 , 13 ,255, 27,  255, // Rule 8: If x is NM and y is NM then z is o/p_4 <!!!!not erase inertia>
+    2 , 13 ,255, 28,  255, // Rule 9: If x is NM and y is NS then z is o/p_3 <!!!!erase inertia>
+    3 , 13 ,255, 28,  255, // Rule 9: If x is NM and y is NS then z is o/p_3 <!!!!erase inertia>
+		4 , 13 ,255, 21,  255, // Rule 10: If x is NM and y is Z0 then z is o/p_3
+		5 , 13 ,255, 22,  255, // Rule 5: If x is NB and y is PM then z is o/p_1 
+    6 , 13 ,255, 23,  255, // Rule 6: If x is NB and y is PB then z is o/p_1
 }; // End RuleBase
 
 #define MaxMbfs  255
@@ -292,20 +293,21 @@ void Defuzzify()
 						else
 							dIndex++;
 					}
-					//printf("\n");
 		} /* End for j */
 		return;
 }
 
 void GetCrispInputs(){
-    CrispInput[0] = (int)compAngleX;
+    CrispInput[0] = (int)compAngleY;
 		CrispInput[1] = (int)X_Angular_velocity;
 		//printf("CrispInput[0] = %d\tCrispInput[1] = %d\n",CrispInput[0],CrispInput[1]);
 }
 
 #define ABS(X) ((X)>(0))?(X):(-1*X)
 void ApplyCrispOutputs(){
+		//static int ignore = TIME_PERIOD,pre_dir;
 		int temp = CrispOutput[0];
+		
 		if(CrispOutput[0] > 0){
 			//Please Forward
 				Direction = 1;
@@ -319,9 +321,19 @@ void ApplyCrispOutputs(){
 				//Balance
 					//printf("Balance\n");
 		}
-		
+		/*if(pre_dir == Direction){
+			ignore--;
+			if(ignore == 0){
+					ignore = TIME_PERIOD;
+					count = 0;
+			}
+		}else{
+			ignore = TIME_PERIOD;
+			count++;
+		}
+		pre_dir = Direction;*/
 		Duty = ABS(CrispOutput[0]);
-		//printf("Direction = %d , Duty = %d \n",(int)Direction,(int)Duty);
+		printf("Direction = %d , Duty = %d \n",(int)Direction,(int)Duty);
 }
 
 void updatePitchRoll() {
@@ -338,26 +350,74 @@ void USART_Configuration(void)
 {
 		GPIO_InitTypeDef GPIO_InitStructure;
 		USART_InitTypeDef USART_InitStructure;
-
-		//TX
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; 
+		NVIC_InitTypeDef NVIC_InitStructure;
+	
+		/* Init USART3 Interrupt */
+		/*NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+		NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+		NVIC_ClearPendingIRQ(USART3_IRQn);
+		NVIC_Init(&NVIC_InitStructure);	
+		NVIC_EnableIRQ(USART3_IRQn);
+	
+		GPIO_PinRemapConfig(GPIO_PartialRemap_USART3, ENABLE);
+	*/
+		/* Configure USART3 Tx (PB10) as alternate function push-pull */
+	/*	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;//
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		GPIO_Init(GPIOA, &GPIO_InitStructure);    
-		//RX
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);*/
+
+		/* Configure USART3 Rx (PB11) as input floating */
+		/*GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;//
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-		GPIO_Init(GPIOA, &GPIO_InitStructure); 
-    
-    USART_InitStructure.USART_BaudRate = 115200;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
+	
+    USART_InitStructure.USART_BaudRate = 9600;
     USART_InitStructure.USART_WordLength = USART_WordLength_8b;
     USART_InitStructure.USART_StopBits = USART_StopBits_1;
     USART_InitStructure.USART_Parity = USART_Parity_No;
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_InitStructure.USART_Mode = USART_Mode_Rx|USART_Mode_Tx;
-    USART_Init(USART1,&USART_InitStructure);
-    USART_Cmd(USART1,ENABLE);
-		USART_ClearFlag(USART1, USART_FLAG_TC);
+    USART_Init(USART3,&USART_InitStructure);*/
+		/* Enable USART3 Receive and Transmit interrupts */
+	/*	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+		//USART_ITConfig(USART3, USART_IT_TC, ENABLE);
+		
+		USART_Cmd(USART3,ENABLE);*/
+		//---------------USART 1----------------//
+		/* Init USART1 Interrupt */
+		NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+		NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+		NVIC_ClearPendingIRQ(USART1_IRQn);
+		NVIC_Init(&NVIC_InitStructure);	
+		NVIC_EnableIRQ(USART1_IRQn);
+		
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_USART1, ENABLE);
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_Init(GPIOA, &GPIO_InitStructure);    
+		
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;	
+		GPIO_Init(GPIOA, &GPIO_InitStructure);  
+			
+		
+		USART_InitStructure.USART_BaudRate = 9600;	
+		USART_InitStructure.USART_WordLength = USART_WordLength_8b;	
+		USART_InitStructure.USART_StopBits = USART_StopBits_1; 	
+		USART_InitStructure.USART_Parity = USART_Parity_No ; 
+		USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;	
+		USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+		USART_Init(USART1, &USART_InitStructure);  
+		USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+		USART_Cmd(USART1, ENABLE);
 }
 void RCC_Configuration(void)
 {
@@ -384,27 +444,47 @@ void RCC_Configuration(void)
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 		/* TIM4 clock enable */
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB|RCC_APB2Periph_AFIO|RCC_APB2Periph_USART1, ENABLE);
+		
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB|RCC_APB2Periph_AFIO, ENABLE);
+		
+		/* UART3 clock enable */
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
 }
-
+#define GPIO_Remap_SWJ_JTAGDisable  ((uint32_t)0x00300200) 
 void TIM_GPIO_Config(void)
 {
 		GPIO_InitTypeDef GPIO_InitStructure;
-		/* GPIOB Configuration:Motor Input*/
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15|GPIO_Pin_11|GPIO_Pin_10;
+		GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE); 
+		/* GPIOB Configuration:Motor Input */
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_12;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
-		/* GPIOA Configuration:TIM2*/
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+		/* GPIOB Configuration:Motor Input */
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
+		/* GPIOA Configuration:Motor Input*/
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+		GPIO_Init(GPIOA, &GPIO_InitStructure);
+		/* GPIOA Configuration:TIM2 */
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 		GPIO_Init(GPIOA, &GPIO_InitStructure);
 		/* GPIOB Configuration:TIM4*/
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
+		
+		/*GPIO_ResetBits(GPIOB, GPIO_Pin_4);
+		GPIO_ResetBits(GPIOB,GPIO_Pin_5);
+		GPIO_ResetBits(GPIOB,GPIO_Pin_12);
+		GPIO_ResetBits(GPIOA,GPIO_Pin_15);*/
 }
 
 void NVIC_Timer2_Configuration(void)
@@ -417,8 +497,8 @@ void NVIC_Timer2_Configuration(void)
     #endif
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
     NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 }
@@ -433,8 +513,8 @@ void NVIC_Timer4_Configuration(void)
     #endif
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
     NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 }
@@ -446,7 +526,7 @@ void TIM2_Configuration(void)
 		TIM_TimeBaseStructure.TIM_Period = 99;
 		TIM_TimeBaseStructure.TIM_Prescaler = 7199;
 		TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-		TIM_TimeBaseInit(TIM2,&TIM_TimeBaseStructure);
+		TIM_TimeBaseInit(TIM1,&TIM_TimeBaseStructure);
 		TIM_ITConfig(TIM2,TIM_IT_CC1,ENABLE);
 		TIM_Cmd(TIM2,ENABLE);
 }
@@ -455,8 +535,8 @@ void TIM4_Configuration(void)
 {
 	//EX: T=(TIM_Period+1)*(TIM_Prescaler+1)/TIMxCLK=(1000)*(7200)/72MHz=0.01s//
 		TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-		TIM_TimeBaseStructure.TIM_Period = 999;
-		TIM_TimeBaseStructure.TIM_Prescaler = 7199;
+		TIM_TimeBaseStructure.TIM_Period = 9;
+		TIM_TimeBaseStructure.TIM_Prescaler = 719;
 		TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 		TIM_TimeBaseInit(TIM4,&TIM_TimeBaseStructure);
 		TIM_ITConfig(TIM4,TIM_IT_CC1,ENABLE);
@@ -523,6 +603,7 @@ void Sensor_fusion()
     
 		//For fuzzy input[1]
 		X_Angular_velocity = gyroXrate*0.1;
+		Y_Angular_velocity = gyroYrate*0.1;
     #ifdef RESTRICT_PITCH        //#define RESTRICT_PITCH prevent -180 ~ 180 jump
     // This fixes the transition problem when the accelerometer angle jumps between -180 and 180 degrees
     if ((roll < -90 && kalAngleX > 90) || (roll > 90 && kalAngleX < -90)) {
@@ -566,20 +647,20 @@ void Sensor_fusion()
     if (gyroYangle < -180 || gyroYangle > 180)
         gyroYangle = kalAngleY;
 		//printf("kalAngleX = %d , kalAngleY = %d\n",(int)kalAngleX,(int)kalAngleY);
-		printf("compAngleX = %d , compAngleY = %d , X_Angular_velocity = %d\n",(int)compAngleX,(int)compAngleY,(int)X_Angular_velocity);
+		printf("compAngleX = %d , compAngleY = %d , Y_Angular_velocity = %d\n",(int)compAngleX,(int)compAngleY,(int)Y_Angular_velocity);
 } 
 
-void TIM3_GPIO_Config(void)
+void TIM4_GPIO_Config(void)
 {
 		GPIO_InitTypeDef GPIO_InitStructure;
-		/* GPIOA Configuration: TIM3 channel1,2 */
-		GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_0 | GPIO_Pin_1;
+		/* GPIOB Configuration: TIM4 channel1,2 */
+		GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_6 | GPIO_Pin_7;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
 #define SYSCLK_FREQ_72MHz  72000000
-static void TIM3_Mode_Config(void)
+static void TIM4_Mode_Config(void)
 {
 		TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 		TIM_OCInitTypeDef TIM_OCInitStructure;
@@ -588,7 +669,7 @@ static void TIM3_Mode_Config(void)
 		/* Compute the prescaler value */
 		PrescalerValue = (uint16_t) (SYSCLK_FREQ_72MHz / 24000000) - 1;
 		
-		/* The TIM3 is running at 36 KHz: TIM3 Frequency = TIM3 counter clock/(ARR + 1)
+		/* The 4 is running at 36 KHz: TIM4 Frequency = TIM4 counter clock/(ARR + 1)
 																										 = 24 MHz / 666 = 36 KHz ,
 		TIM3 Channel1 duty cycle = (TIM3_CCR1/ TIM3_ARR)* 100 = 50% */
 		/* Time base configuration */
@@ -597,35 +678,35 @@ static void TIM3_Mode_Config(void)
 		TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 		TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
-		TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
-		/* PWM1 Mode configuration: Channel3 */
+		TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+		/* PWM1 Mode configuration: Channel1 */
 		TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 		
 		TIM_OCInitStructure.TIM_Pulse = CCR_Val;
 		TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-		TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-		/* PWM1 Mode configuration: Channel4 */
+		TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+		/* PWM1 Mode configuration: Channel2 */
 		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 		TIM_OCInitStructure.TIM_Pulse = CCR_Val;
-		TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+		TIM_OC2Init(TIM4, &TIM_OCInitStructure);
 		
 		
-		TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-		TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+		TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+		TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 		
-		TIM_ARRPreloadConfig(TIM3, ENABLE);
-		/* TIM3 enable counter */
-		TIM_Cmd(TIM3, ENABLE);
+		TIM_ARRPreloadConfig(TIM4, ENABLE);
+		/* TIM4 enable counter */
+		TIM_Cmd(TIM4, ENABLE);
 }
 
-void TIM3_PWM_Init(void)
+void TIM4_PWM_Init(void)
 {
-		TIM3_GPIO_Config();
-		TIM3_Mode_Config();
+		TIM4_GPIO_Config();
+		TIM4_Mode_Config();
 }
 
-void TIM1_Configuration(void)
+void TIM1_Light_Mask_Configuration(void)
 {
 		//Just need timer to calculate
 		TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
@@ -662,8 +743,8 @@ void Light_mask_init(void)
 		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
 		EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 		EXTI_Init(&EXTI_InitStructure);
-		//TIM 1 init
-		TIM1_Configuration();
+		//TIM 1 init PA.0 & 6
+		TIM1_Light_Mask_Configuration();
 }
 
 int main(void)
@@ -672,20 +753,22 @@ int main(void)
 		Systick_Init(); //Sys_tick for delay function
 		RCC_Configuration();
 		TIM_GPIO_Config();	
-		//USART_Configuration();
+		USART_Configuration();
 		//MPU6050 init
 		Sys_Configuration();
 		MPU6050_Inital();
 		InitAll();
-		//Timer 2 - 100HZ for sensor fusion (PA.0)
+		//Timer 2 - 100HZ for sensor fusion (PA.3)
 		NVIC_Timer2_Configuration();
 		TIM2_Configuration();
 		//Timer 4 - 10KHZ for Motor (PB.8)
 		NVIC_Timer4_Configuration();
 		TIM4_Configuration();
-		//Make Timer 3 - PWM PB.0,1
-		TIM3_PWM_Init();
+		//Make Timer 4 - PWM PB.6,7
+		TIM4_PWM_Init();
 		//Make IQR for mask caculate
 		Light_mask_init();
-		while (1);
+		while (1){
+				//USART_SendData(USART1,'1');
+		}
 }

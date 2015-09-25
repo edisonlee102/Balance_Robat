@@ -10,4 +10,5 @@
 .\systick.o: ..\FWlib\inc\stm32f10x_gpio.h
 .\systick.o: ..\FWlib\inc\stm32f10x_rcc.h
 .\systick.o: ..\FWlib\inc\stm32f10x_tim.h
+.\systick.o: ..\FWlib\inc\stm32f10x_usart.h
 .\systick.o: ..\FWlib\inc\misc.h

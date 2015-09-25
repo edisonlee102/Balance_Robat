@@ -9,4 +9,5 @@
 .\system_stm32f10x.o: ..\FWlib\inc\stm32f10x_gpio.h
 .\system_stm32f10x.o: ..\FWlib\inc\stm32f10x_rcc.h
 .\system_stm32f10x.o: ..\FWlib\inc\stm32f10x_tim.h
+.\system_stm32f10x.o: ..\FWlib\inc\stm32f10x_usart.h
 .\system_stm32f10x.o: ..\FWlib\inc\misc.h

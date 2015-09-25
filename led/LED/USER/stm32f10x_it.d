@@ -10,5 +10,8 @@
 .\stm32f10x_it.o: ..\FWlib\inc\stm32f10x_gpio.h
 .\stm32f10x_it.o: ..\FWlib\inc\stm32f10x_rcc.h
 .\stm32f10x_it.o: ..\FWlib\inc\stm32f10x_tim.h
+.\stm32f10x_it.o: ..\FWlib\inc\stm32f10x_usart.h
 .\stm32f10x_it.o: ..\FWlib\inc\misc.h
 .\stm32f10x_it.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\stm32f10x_it.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\stm32f10x_it.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

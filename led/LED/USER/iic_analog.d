@@ -9,5 +9,6 @@
 .\iic_analog.o: ..\FWlib\inc\stm32f10x_gpio.h
 .\iic_analog.o: ..\FWlib\inc\stm32f10x_rcc.h
 .\iic_analog.o: ..\FWlib\inc\stm32f10x_tim.h
+.\iic_analog.o: ..\FWlib\inc\stm32f10x_usart.h
 .\iic_analog.o: ..\FWlib\inc\misc.h
 .\iic_analog.o: ..\CMSIS\iic_analog.h

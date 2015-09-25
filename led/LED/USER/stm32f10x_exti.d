@@ -10,4 +10,5 @@
 .\stm32f10x_exti.o: ..\CMSIS\stm32f10x.h
 .\stm32f10x_exti.o: ..\FWlib\inc\stm32f10x_rcc.h
 .\stm32f10x_exti.o: ..\FWlib\inc\stm32f10x_tim.h
+.\stm32f10x_exti.o: ..\FWlib\inc\stm32f10x_usart.h
 .\stm32f10x_exti.o: ..\FWlib\inc\misc.h

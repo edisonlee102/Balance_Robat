@@ -10,4 +10,5 @@
 .\misc.o: ..\FWlib\inc\stm32f10x_gpio.h
 .\misc.o: ..\FWlib\inc\stm32f10x_rcc.h
 .\misc.o: ..\FWlib\inc\stm32f10x_tim.h
+.\misc.o: ..\FWlib\inc\stm32f10x_usart.h
 .\misc.o: ..\FWlib\inc\misc.h
