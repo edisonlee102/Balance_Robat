@@ -151,20 +151,78 @@ void SysTick_Handler(void)
 }
 
 int count;
-#define TIME_PERIOD 350
+extern double compAngleY;
+extern float Y_Angular_velocity;
+#define TIME_PERIOD 100
+#define ABS(X) (((X)>(0))?(X):(-1*X))
+#define SIGN(X) (((X)>(0))?(1):(-1))
 void Motor_duty_control()
 {
-		static float IF = 1;		
+		//static float IF = 1;		
 		TIM_OCInitTypeDef TIM_OCInitStructure;
-		
-		if(count != 0)
+		int counter_number;
+		/*if(count != 0)
 		{
 				IF = 1/(count+1);
 		}else{
 				IF = 1;
 		}
-		if(ble_lock)
-			Duty = 1;
+		printf("IF = %f\n",IF);*/
+			if(ble_lock)
+				counter_number = 100;
+			else{
+				if(ABS(Y_Angular_velocity) < 10){
+					if(Duty != 0)
+						counter_number = ABS(compAngleY)*ABS(Duty)+20*SIGN(Duty);
+					else
+						counter_number = 0;
+				}
+				else{
+					if(Duty != 0)
+						if(compAngleY>10 && Y_Angular_velocity>0)
+								counter_number = ABS(compAngleY*ABS(Duty)-Y_Angular_velocity*10);
+						if(compAngleY<10 && Y_Angular_velocity>0)
+								counter_number = ABS(compAngleY*ABS(Duty)-Y_Angular_velocity*5);
+						if(compAngleY<10 && Y_Angular_velocity>0)
+								counter_number = ABS(compAngleY)*ABS(Duty)+Y_Angular_velocity*10;
+						if(compAngleY<10 && Y_Angular_velocity>0)
+								counter_number = ABS(compAngleY)*ABS(Duty)+Y_Angular_velocity*5;
+						if(compAngleY>10 && Y_Angular_velocity<0)
+								counter_number = compAngleY*ABS(Duty)+Y_Angular_velocity*10;
+						if(compAngleY>10 && Y_Angular_velocity<0)
+								counter_number = compAngleY*ABS(Duty)+Y_Angular_velocity*5;
+						if(compAngleY<10 && Y_Angular_velocity<0)
+								counter_number = ABS(ABS(compAngleY)*ABS(Duty)-Y_Angular_velocity*10);
+						if(compAngleY<10 && Y_Angular_velocity<0)
+								counter_number = ABS(ABS(compAngleY)*ABS(Duty)-Y_Angular_velocity*5);
+					else
+						counter_number = 0;
+				}
+				if(counter_number >= 666 || counter_number <= 0)
+				{
+					counter_number = 0;
+				}
+		}
+		//printf("counter_number = %d ,Duty = %f,compAngleY = %lf,Y_Angular_velocity = %f\n",counter_number,Duty,compAngleY,Y_Angular_velocity);
+		TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+		
+		TIM_OCInitStructure.TIM_Pulse = counter_number;
+		TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+		TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+		/* PWM1 Mode configuration: Channel2 */
+		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+		TIM_OCInitStructure.TIM_Pulse = counter_number;
+		TIM_OC2Init(TIM4, &TIM_OCInitStructure);
+		
+		
+		TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+		TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
+		
+		TIM_ARRPreloadConfig(TIM4, ENABLE);
+		/* TIM4 enable counter */
+		TIM_Cmd(TIM4, ENABLE);
+		#if 0
 		if(Duty == 1)
 		{
 				/* PWM1 Mode configuration: Channel1 */
@@ -404,24 +462,25 @@ void Motor_duty_control()
 				TIM_ARRPreloadConfig(TIM4, ENABLE);
 				TIM_Cmd(TIM4, ENABLE);
 		}
+		#endif
 }
 
 void Motor_dir_control()
 {
-		static int ignore = TIME_PERIOD,pre_dir;
+		/*static int ignore = TIME_PERIOD,pre_dir;
 	
 		if(pre_dir == Direction){
 			ignore--;
-		if(ignore == 0){
-					ignore = TIME_PERIOD;
-					count = 0;
-		}
+			if(ignore == 0){
+						ignore = TIME_PERIOD;
+						count = 0;
+			}
 		}else{
 			ignore = TIME_PERIOD;
 			count++;
 		}
 		pre_dir = Direction;
-		//printf("count = %d\n",count);
+		printf("count = %d\n",count);*/
 		if(dir != 0 && ble_lock)
 		{
 					switch(dir)

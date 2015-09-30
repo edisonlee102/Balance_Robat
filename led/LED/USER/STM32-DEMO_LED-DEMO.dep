@@ -1,6 +1,6 @@
 Dependencies for Project 'STM32-DEMO', Target 'LED-DEMO': (DO NOT MODIFY !)
 F (..\CMSIS\startup\startup_stm32f10x_md.s)(0x55F2B6DD)(--cpu Cortex-M3 --pd "__EVAL SETA 1" -g --apcs=interwork --pd "__MICROLIB SETA 1"-I C:\Keil_v5\ARM\RV31\INC-I C:\Keil_v5\ARM\CMSIS\Include-I C:\Keil_v5\ARM\Inc\ST\STM32F10x--pd "__UVISION_VERSION SETA 515"--list ..\listing\startup_stm32f10x_md.lst --xref -o .\startup_stm32f10x_md.o --depend .\startup_stm32f10x_md.d)
-F (.\main.c)(0x5604C5C8)(-c --cpu Cortex-M3 -D__EVAL -D__MICROLIB -g -O0 --apcs=interwork -I..\CMSIS -I..\FWlib\inc -I..\USER -I..\FWlib\src -I..\CMSIS\startup-I C:\Keil_v5\ARM\RV31\INC-I C:\Keil_v5\ARM\CMSIS\Include-I C:\Keil_v5\ARM\Inc\ST\STM32F10x-D__UVISION_VERSION="515" -DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD-o .\main.o --omf_browse .\main.crf --depend .\main.d)
+F (.\main.c)(0x5605101E)(-c --cpu Cortex-M3 -D__EVAL -D__MICROLIB -g -O0 --apcs=interwork -I..\CMSIS -I..\FWlib\inc -I..\USER -I..\FWlib\src -I..\CMSIS\startup-I C:\Keil_v5\ARM\RV31\INC-I C:\Keil_v5\ARM\CMSIS\Include-I C:\Keil_v5\ARM\Inc\ST\STM32F10x-D__UVISION_VERSION="515" -DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD-o .\main.o --omf_browse .\main.crf --depend .\main.d)
 I (..\CMSIS\stm32f10x.h)(0x55F2B6DD)
 I (..\CMSIS\core_cm3.h)(0x55F2B6DD)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x54C245B8)
@@ -19,7 +19,7 @@ I (..\CMSIS\iic_analog.h)(0x5600EC73)
 I (..\CMSIS\MPU6050.h)(0x55F2B6DD)
 I (Robat.h)(0x55F2B6DD)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x54C245B8)
-F (.\stm32f10x_it.c)(0x5604DD1F)(-c --cpu Cortex-M3 -D__EVAL -D__MICROLIB -g -O0 --apcs=interwork -I..\CMSIS -I..\FWlib\inc -I..\USER -I..\FWlib\src -I..\CMSIS\startup-I C:\Keil_v5\ARM\RV31\INC-I C:\Keil_v5\ARM\CMSIS\Include-I C:\Keil_v5\ARM\Inc\ST\STM32F10x-D__UVISION_VERSION="515" -DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD-o .\stm32f10x_it.o --omf_browse .\stm32f10x_it.crf --depend .\stm32f10x_it.d)
+F (.\stm32f10x_it.c)(0x56051A33)(-c --cpu Cortex-M3 -D__EVAL -D__MICROLIB -g -O0 --apcs=interwork -I..\CMSIS -I..\FWlib\inc -I..\USER -I..\FWlib\src -I..\CMSIS\startup-I C:\Keil_v5\ARM\RV31\INC-I C:\Keil_v5\ARM\CMSIS\Include-I C:\Keil_v5\ARM\Inc\ST\STM32F10x-D__UVISION_VERSION="515" -DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD-o .\stm32f10x_it.o --omf_browse .\stm32f10x_it.crf --depend .\stm32f10x_it.d)
 I (stm32f10x_it.h)(0x55F2B6DD)
 I (..\CMSIS\stm32f10x.h)(0x55F2B6DD)
 I (..\CMSIS\core_cm3.h)(0x55F2B6DD)

@@ -431,19 +431,14 @@
               <FilePath>.\stm32f10x_it.c</FilePath>
             </File>
             <File>
-              <FileName>led.c</FileName>
+              <FileName>systick.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\led.c</FilePath>
+              <FilePath>.\systick.c</FilePath>
             </File>
             <File>
               <FileName>fputc_debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\fputc_debug.c</FilePath>
-            </File>
-            <File>
-              <FileName>systick.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\systick.c</FilePath>
             </File>
           </Files>
         </Group>

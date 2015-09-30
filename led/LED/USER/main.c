@@ -59,19 +59,19 @@ int DataBase[] =
 
 		15,
     // Output have 11 singleton memberfunctions. //+back;-forward 
-    8, 		// o/p_1 -14
-    6 , 		// o/p_5 -15
-    5 , 		// o/p_7 -16
-    4 , 		// o/p_8 -17
+    3, 		// o/p_1 -14
+    3 , 		// o/p_5 -15
+    3 , 		// o/p_7 -16
+    3 , 		// o/p_8 -17
 		3 , 		// o/p_10 -18
     2 , 		// o/p_11 -19
     0 , 		// o/p_12 -20
     -2 , 		// o/p_13 -21
     -3 , 		// o/p_14 -22
-    -4 , 		// o/p_15 -23
-    -5 , 		// o/p_16 -24
-	  -6 , 		// o/p_16 -25
-		-8, 		// o/p_16 -26
+    -3 , 		// o/p_15 -23
+    -3 , 		// o/p_16 -24
+	  -3 , 		// o/p_16 -25
+		-3, 		// o/p_16 -26
 		 1 , 		// o/p_16 -27
 		-1, 		// o/p_16 -28
 };// End DataBase
@@ -333,7 +333,7 @@ void ApplyCrispOutputs(){
 		}
 		pre_dir = Direction;*/
 		Duty = ABS(CrispOutput[0]);
-		printf("Direction = %d , Duty = %d \n",(int)Direction,(int)Duty);
+		//printf("Direction = %d , Duty = %d \n",(int)Direction,(int)Duty);
 }
 
 void updatePitchRoll() {
@@ -647,7 +647,7 @@ void Sensor_fusion()
     if (gyroYangle < -180 || gyroYangle > 180)
         gyroYangle = kalAngleY;
 		//printf("kalAngleX = %d , kalAngleY = %d\n",(int)kalAngleX,(int)kalAngleY);
-		printf("compAngleX = %d , compAngleY = %d , Y_Angular_velocity = %d\n",(int)compAngleX,(int)compAngleY,(int)Y_Angular_velocity);
+		//printf("compAngleX = %d , compAngleY = %d , Y_Angular_velocity = %d\n",(int)compAngleX,(int)compAngleY,(int)Y_Angular_velocity);
 } 
 
 void TIM4_GPIO_Config(void)
