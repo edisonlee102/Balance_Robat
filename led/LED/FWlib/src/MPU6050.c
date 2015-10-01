@@ -1,7 +1,7 @@
 #include "stm32f10x.h"
 #include "MPU6050.h"
 #include "iic_analog.h"
-
+#include <stdio.h>
 void delay_IIC( int ms );
 
 

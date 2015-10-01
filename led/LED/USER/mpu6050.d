@@ -13,3 +13,4 @@
 .\mpu6050.o: ..\FWlib\inc\misc.h
 .\mpu6050.o: ..\CMSIS\MPU6050.h
 .\mpu6050.o: ..\CMSIS\iic_analog.h
+.\mpu6050.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

@@ -10,6 +10,7 @@
 #include <math.h>
 #include "misc.h"
 #include "stm32f10x_tim.h"
+#include <oled.h>
 #define RESTRICT_PITCH // Comment out to restrict roll to ±90deg instead - please read:
 float acc_x,acc_y,acc_z,gy_x,gy_y,gy_z;
 float roll, pitch;
@@ -22,6 +23,7 @@ float X_Angular_velocity = 0;
 float Y_Angular_velocity = 0;
 float Duty; //duty cycle percentage
 int Direction;    //1:CW 0:CCW
+int iic_status;
 #define RAD_TO_DEG 57.295779513082320876798154814105
 #define DEG_TO_RAD 0.01745329251994329576923690768489
 #define ACCEL_SENSITIVITY 16384  //32768/2 = 16384 LSB per g
@@ -59,19 +61,19 @@ int DataBase[] =
 
 		15,
     // Output have 11 singleton memberfunctions. //+back;-forward 
-    3, 		// o/p_1 -14
-    3 , 		// o/p_5 -15
-    3 , 		// o/p_7 -16
-    3 , 		// o/p_8 -17
-		3 , 		// o/p_10 -18
+    2, 		// o/p_1 -14
+    2 , 		// o/p_5 -15
+    2 , 		// o/p_7 -16
+    2 , 		// o/p_8 -17
+		2 , 		// o/p_10 -18
     2 , 		// o/p_11 -19
     0 , 		// o/p_12 -20
     -2 , 		// o/p_13 -21
-    -3 , 		// o/p_14 -22
-    -3 , 		// o/p_15 -23
-    -3 , 		// o/p_16 -24
-	  -3 , 		// o/p_16 -25
-		-3, 		// o/p_16 -26
+    -2 , 		// o/p_14 -22
+    -2 , 		// o/p_15 -23
+    -2 , 		// o/p_16 -24
+	  -2 , 		// o/p_16 -25
+		-2, 		// o/p_16 -26
 		 1 , 		// o/p_16 -27
 		-1, 		// o/p_16 -28
 };// End DataBase
@@ -298,12 +300,15 @@ void Defuzzify()
 }
 
 void GetCrispInputs(){
-    CrispInput[0] = (int)compAngleY;
-		CrispInput[1] = (int)X_Angular_velocity;
+		if(compAngleY >= 80)
+				CrispInput[0] = 80;
+		else
+				CrispInput[0] = (int)compAngleY;
+		CrispInput[1] = (int)Y_Angular_velocity;
 		//printf("CrispInput[0] = %d\tCrispInput[1] = %d\n",CrispInput[0],CrispInput[1]);
 }
 
-#define ABS(X) ((X)>(0))?(X):(-1*X)
+#define ABS(X) (((X)>(0))?(X):(-1*X))
 void ApplyCrispOutputs(){
 		//static int ignore = TIME_PERIOD,pre_dir;
 		int temp = CrispOutput[0];
@@ -460,13 +465,13 @@ void TIM_GPIO_Config(void)
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
-		/* GPIOB Configuration:Motor Input */
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+		/* GPIOB Configuration:Motor Input & OLED RST,RS*/
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_4;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
-		/* GPIOA Configuration:Motor Input*/
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+		/* GPIOA Configuration:Motor Input & OLED SD,SC*/
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_15;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 		GPIO_Init(GPIOA, &GPIO_InitStructure);
@@ -536,7 +541,7 @@ void TIM4_Configuration(void)
 	//EX: T=(TIM_Period+1)*(TIM_Prescaler+1)/TIMxCLK=(1000)*(7200)/72MHz=0.01s//
 		TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 		TIM_TimeBaseStructure.TIM_Period = 9;
-		TIM_TimeBaseStructure.TIM_Prescaler = 719;
+		TIM_TimeBaseStructure.TIM_Prescaler = (int)(719/2);
 		TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 		TIM_TimeBaseInit(TIM4,&TIM_TimeBaseStructure);
 		TIM_ITConfig(TIM4,TIM_IT_CC1,ENABLE);
@@ -545,13 +550,29 @@ void TIM4_Configuration(void)
 
 void updateMPU6050(void)
 {
+	static unsigned int err_cnt=0;
 	acc_x= getAccX()-Cal_acc_x; 
 	acc_y= getAccY()-Cal_acc_y; 
 	acc_z= getAccZ(); 
-	gy_x= getGyroX(); 
-	gy_y= getGyroY(); 
+	gy_x= getGyroX();
+	err_cnt = err_cnt*115>>7;
+	if(err_cnt>6570)
+		iic_status = 0;
+	else
+		iic_status = 1;
+	if(gy_x == 0)
+		goto err;
+	gy_y= getGyroY();
+	if(gy_y == 0)
+		goto err;
 	gy_z= getGyroZ();
-	//printf("acc_x = %d,acc_y = %d,acc_z = %d,gy_x = %d,gy_y = %d,gy_z = %d\n",(int)acc_x,(int)acc_y,(int)acc_z,(int)gy_x,(int)gy_y,(int)gy_z);
+	if(gy_z == 0)
+		goto err;
+	return;
+//printf("acc_x = %d,acc_y = %d,acc_z = %d,gy_x = %d,gy_y = %d,gy_z = %d\n",(int)acc_x,(int)acc_y,(int)acc_z,(int)gy_x,(int)gy_y,(int)gy_z);
+err:
+	err_cnt +=100;	
+	return;
 }
 
 void sensor_cal(void)
@@ -589,7 +610,7 @@ void InitAll()
 		CrispInput[0] = (int)compAngleX;
 		CrispInput[1] = (int)X_Angular_velocity;
 }
-
+#define SIGN(a) (((a)>=0)?(1):(-1))
 void Sensor_fusion()
 {
     float gyroXrate,gyroYrate,dt=0.01;
@@ -647,7 +668,9 @@ void Sensor_fusion()
     if (gyroYangle < -180 || gyroYangle > 180)
         gyroYangle = kalAngleY;
 		//printf("kalAngleX = %d , kalAngleY = %d\n",(int)kalAngleX,(int)kalAngleY);
-		//printf("compAngleX = %d , compAngleY = %d , Y_Angular_velocity = %d\n",(int)compAngleX,(int)compAngleY,(int)Y_Angular_velocity);
+		if(ABS((int)compAngleY)>80)
+			compAngleY = SIGN(compAngleY)*80;
+		printf("compAngleX = %d , compAngleY = %d , Y_Angular_velocity = %d\n",(int)compAngleX,(int)compAngleY,(int)Y_Angular_velocity);
 } 
 
 void TIM4_GPIO_Config(void)
@@ -664,7 +687,7 @@ static void TIM4_Mode_Config(void)
 {
 		TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 		TIM_OCInitTypeDef TIM_OCInitStructure;
-		uint16_t CCR_Val = 333;
+		uint16_t CCR_Val = 0;
 		uint16_t PrescalerValue = 0;
 		/* Compute the prescaler value */
 		PrescalerValue = (uint16_t) (SYSCLK_FREQ_72MHz / 24000000) - 1;
@@ -768,6 +791,9 @@ int main(void)
 		TIM4_PWM_Init();
 		//Make IQR for mask caculate
 		Light_mask_init();
+		/*OLED_Init();
+		OLED_Display_On();
+		OLED_ShowString(0, 0,(uint8_t *)"E");*/
 		while (1){
 				//USART_SendData(USART1,'1');
 		}
