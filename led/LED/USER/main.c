@@ -11,6 +11,8 @@
 #include "misc.h"
 #include "stm32f10x_tim.h"
 #include <oled.h>
+#include "ofme_pid.h"
+#include <string.h>
 #define RESTRICT_PITCH // Comment out to restrict roll to ±90deg instead - please read:
 float acc_x,acc_y,acc_z,gy_x,gy_y,gy_z;
 float roll, pitch;
@@ -24,12 +26,13 @@ float Y_Angular_velocity = 0;
 float Duty; //duty cycle percentage
 int Direction;    //1:CW 0:CCW
 int iic_status;
+pid_s sPID;	
 #define RAD_TO_DEG 57.295779513082320876798154814105
 #define DEG_TO_RAD 0.01745329251994329576923690768489
 #define ACCEL_SENSITIVITY 16384  //32768/2 = 16384 LSB per g
 #define GYRO_SENSITIVITY  16.384 //32768/2000 = 16.384 LSB per degree
 #define CAL_COUNT         100    //sensor calibration count
-
+#define PI (3.14159265)
 //Edison fuzzy parameters
 int FLC[] =
 {
@@ -358,7 +361,7 @@ void USART_Configuration(void)
 		NVIC_InitTypeDef NVIC_InitStructure;
 	
 		/* Init USART3 Interrupt */
-		/*NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+		NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 		NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
 		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
@@ -367,16 +370,16 @@ void USART_Configuration(void)
 		NVIC_Init(&NVIC_InitStructure);	
 		NVIC_EnableIRQ(USART3_IRQn);
 	
-		GPIO_PinRemapConfig(GPIO_PartialRemap_USART3, ENABLE);
-	*/
+		//GPIO_PinRemapConfig(GPIO_PartialRemap_USART3, ENABLE);
+	
 		/* Configure USART3 Tx (PB10) as alternate function push-pull */
-	/*	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;//
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-		GPIO_Init(GPIOB, &GPIO_InitStructure);*/
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 		/* Configure USART3 Rx (PB11) as input floating */
-		/*GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;//
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;//
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
 	
@@ -386,15 +389,15 @@ void USART_Configuration(void)
     USART_InitStructure.USART_Parity = USART_Parity_No;
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_InitStructure.USART_Mode = USART_Mode_Rx|USART_Mode_Tx;
-    USART_Init(USART3,&USART_InitStructure);*/
+    USART_Init(USART3,&USART_InitStructure);
 		/* Enable USART3 Receive and Transmit interrupts */
-	/*	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+		USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
 		//USART_ITConfig(USART3, USART_IT_TC, ENABLE);
 		
-		USART_Cmd(USART3,ENABLE);*/
+		USART_Cmd(USART3,ENABLE);
 		//---------------USART 1----------------//
 		/* Init USART1 Interrupt */
-		NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+		/*NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 		NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
 		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
@@ -422,7 +425,7 @@ void USART_Configuration(void)
 		USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 		USART_Init(USART1, &USART_InitStructure);  
 		USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
-		USART_Cmd(USART1, ENABLE);
+		USART_Cmd(USART1, ENABLE);*/
 }
 void RCC_Configuration(void)
 {
@@ -551,15 +554,23 @@ void TIM4_Configuration(void)
 void updateMPU6050(void)
 {
 	static unsigned int err_cnt=0;
-	acc_x= getAccX()-Cal_acc_x; 
-	acc_y= getAccY()-Cal_acc_y; 
-	acc_z= getAccZ(); 
-	gy_x= getGyroX();
 	err_cnt = err_cnt*115>>7;
 	if(err_cnt>6570)
 		iic_status = 0;
 	else
 		iic_status = 1;
+	acc_x= getAccX();
+	if(acc_x == 0)
+		goto err;
+	acc_x -= Cal_acc_x; 
+	acc_y= getAccY();
+	if(acc_y == 0)
+		goto err;
+	acc_y -= Cal_acc_y; 
+	acc_z= getAccZ();
+	if(acc_z == 0)
+		goto err;	
+	gy_x= getGyroX();
 	if(gy_x == 0)
 		goto err;
 	gy_y= getGyroY();
@@ -568,8 +579,8 @@ void updateMPU6050(void)
 	gy_z= getGyroZ();
 	if(gy_z == 0)
 		goto err;
+	//printf("acc_x = %d,acc_y = %d,acc_z = %d,gy_x = %d,gy_y = %d,gy_z = %d\n",(int)acc_x,(int)acc_y,(int)acc_z,(int)gy_x,(int)gy_y,(int)gy_z);
 	return;
-//printf("acc_x = %d,acc_y = %d,acc_z = %d,gy_x = %d,gy_y = %d,gy_z = %d\n",(int)acc_x,(int)acc_y,(int)acc_z,(int)gy_x,(int)gy_y,(int)gy_z);
 err:
 	err_cnt +=100;	
 	return;
@@ -693,10 +704,10 @@ static void TIM4_Mode_Config(void)
 		PrescalerValue = (uint16_t) (SYSCLK_FREQ_72MHz / 24000000) - 1;
 		
 		/* The 4 is running at 36 KHz: TIM4 Frequency = TIM4 counter clock/(ARR + 1)
-																										 = 24 MHz / 666 = 36 KHz ,
+																										 = 24 MHz / 666 ~= 36 KHz ,
 		TIM3 Channel1 duty cycle = (TIM3_CCR1/ TIM3_ARR)* 100 = 50% */
 		/* Time base configuration */
-		TIM_TimeBaseStructure.TIM_Period = 665;
+		TIM_TimeBaseStructure.TIM_Period = 666;
 		TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
 		TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 		TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -769,9 +780,10 @@ void Light_mask_init(void)
 		//TIM 1 init PA.0 & 6
 		TIM1_Light_Mask_Configuration();
 }
-
+extern int counter_number_ex;
 int main(void)
 { 
+		char str[10];
 		SystemInit();
 		Systick_Init(); //Sys_tick for delay function
 		RCC_Configuration();
@@ -781,6 +793,8 @@ int main(void)
 		Sys_Configuration();
 		MPU6050_Inital();
 		InitAll();
+		pid_init(&sPID, 7.5,0,-15);
+		sPID.target = 0;
 		//Timer 2 - 100HZ for sensor fusion (PA.3)
 		NVIC_Timer2_Configuration();
 		TIM2_Configuration();
@@ -790,11 +804,23 @@ int main(void)
 		//Make Timer 4 - PWM PB.6,7
 		TIM4_PWM_Init();
 		//Make IQR for mask caculate
-		Light_mask_init();
-		/*OLED_Init();
-		OLED_Display_On();
-		OLED_ShowString(0, 0,(uint8_t *)"E");*/
+		//Light_mask_init();
+		OLED_Init();
 		while (1){
+			//OLED Debug
+		OLED_Display_On();
+		OLED_Clear();
+		memset(str,'\0',10*sizeof(char));
+		sprintf(str, "%s%d","Angle:" , (int)compAngleY);
+		OLED_ShowString(0,0,(uint8_t *)str);
+		memset(str,'\0',10*sizeof(char));
+		sprintf(str, "%s%d","Dir:" , (int)Direction);
+		OLED_ShowString(0,12,(uint8_t *)str);
+		memset(str,'\0',10*sizeof(char));
+		sprintf(str, "%s%d","PWM:" , (int)counter_number_ex);
+		OLED_ShowString(0,24,(uint8_t *)str);
+		OLED_Refresh_Gram();	
+		//End Debug print
 				//USART_SendData(USART1,'1');
 		}
 }

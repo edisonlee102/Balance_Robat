@@ -17,6 +17,7 @@ SET CPU_CLOCK=0x007A1200
 "C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via ".\stm32f10x_tim.__i"
 "C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via ".\misc.__i"
 "C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via ".\stm32f10x_exti.__i"
+"C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via ".\oled.__i"
 "C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via ".\ofme_pid.__i"
 "C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via ".\core_cm3.__i"
 "C:\Keil_v5\ARM\ARMCC\Bin\ArmCC" --Via ".\system_stm32f10x.__i"

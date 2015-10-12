@@ -1,4 +1,4 @@
---cpu Cortex-M3 --pd "__EVAL SETA 1" -g --apcs=interwork --pd "__MICROLIB SETA 1"
+--cpu Cortex-M3 -g --apcs=interwork --pd "__MICROLIB SETA 1"
 -I C:\Keil_v5\ARM\RV31\INC
 -I C:\Keil_v5\ARM\CMSIS\Include
 -I C:\Keil_v5\ARM\Inc\ST\STM32F10x

@@ -20,3 +20,5 @@
 .\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 .\main.o: ..\FWlib\inc\oled.h
 .\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\main.o: ..\FWlib\inc\ofme_pid.h
+.\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

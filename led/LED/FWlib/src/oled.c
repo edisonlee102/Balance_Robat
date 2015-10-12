@@ -212,9 +212,9 @@ void OLED_Init(void)
 	RCC->APB2ENR|=1<<2;    //使能PORTA时钟	   	 
  	RCC->APB2ENR|=1<<3;    //使能PORTB时钟	   	 
 	GPIOB->CRL&=0XFFFFFF00; 
-	GPIOB->CRL|=0X00000022;//PC13 推挽输出   
+	GPIOB->CRL|=0X00000023;//PC13 推挽输出   
   GPIOA->CRL&=0XFFFF00FF; 
-	GPIOA->CRL|=0X00002200;//PC13 推挽输出  	
+	GPIOA->CRL|=0X00002300;//PC13 推挽输出  	
 
 	OLED_RST_Clr();
 	//delay_ms(100);

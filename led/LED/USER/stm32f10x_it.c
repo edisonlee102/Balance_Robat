@@ -25,6 +25,8 @@
 #include <stdio.h>
 #include "stdlib.h"
 #include "string.h"
+#include "ofme_pid.h"
+#include <oled.h>
 extern int TimingDelay;
 extern float Duty;
 extern int Direction;
@@ -155,12 +157,15 @@ void SysTick_Handler(void)
 volatile int count;
 extern double compAngleY;
 extern float Y_Angular_velocity,acc_z;
+extern pid_s sPID;
 #define TIME_PERIOD 100
 #define ABS(X) (((X)>(0))?(X):(-1*X))
 #define SIGN(X) (((X)>(0))?(1):(-1))
+int counter_number_ex;
 void Motor_duty_control()
 {
 		static float IF = 1;		
+		int pwm_balance;
 		TIM_OCInitTypeDef TIM_OCInitStructure;
 		int counter_number,temp;
 		if(count != 0)
@@ -171,26 +176,23 @@ void Motor_duty_control()
 				IF = 1;
 		}
 		//printf("IF = %f\n",IF);
-			if(ble_lock)
-				counter_number = 100;
-			else{
+			if(ble_lock){
+				pwm_balance = pid_proc(&sPID, compAngleY, Y_Angular_velocity);
+				counter_number = ABS(pwm_balance);
+				printf("@@@@@@@@@@@@@@@\n");
+				if(dir == '1')
+					counter_number+=400;
+				if(dir == '5')
+					counter_number+=350;
+			}else{
 				if(ABS(Y_Angular_velocity) < 10){ // if w not too big
 					if(Duty != 0)
-						counter_number = ABS(ABS(compAngleY)*ABS(Duty)+40*SIGN(Duty));
+						counter_number = ABS(ABS(compAngleY)*Duty+40);
 					else
 						counter_number = 0;
 				}else{// if w big
-						if(Duty != 0)
 						if(compAngleY>10 && Y_Angular_velocity>0){
 								temp = compAngleY*Duty-Y_Angular_velocity*10;
-								counter_number = ABS(temp);
-						}
-						if(compAngleY<10 && Y_Angular_velocity>0){
-								temp = compAngleY*Duty-Y_Angular_velocity*5;
-								counter_number = ABS(compAngleY*ABS(Duty)-Y_Angular_velocity*5);
-						}
-						if(compAngleY<10 && Y_Angular_velocity>0){
-								temp = ABS(compAngleY)*Duty+Y_Angular_velocity*10;
 								counter_number = ABS(temp);
 						}
 						if(compAngleY<10 && Y_Angular_velocity>0){
@@ -198,24 +200,17 @@ void Motor_duty_control()
 								counter_number = ABS(temp);
 						}
 						if(compAngleY>10 && Y_Angular_velocity<0){
-								temp = compAngleY*Duty+Y_Angular_velocity*10;
-								counter_number = ABS(temp);
-						}
-						if(compAngleY>10 && Y_Angular_velocity<0){
 								temp = compAngleY*Duty+Y_Angular_velocity*5;
 								counter_number = temp;
-						}
-						if(compAngleY<10 && Y_Angular_velocity<0){
-								temp = ABS(compAngleY)*Duty-Y_Angular_velocity*10;
-								counter_number = ABS(temp);
 						}
 						if(compAngleY<10 && Y_Angular_velocity<0){
 								temp = ABS(compAngleY)*Duty-Y_Angular_velocity*5;
 								counter_number = ABS(temp);
 						}
 				}
-				
-				if(counter_number >= 666 || counter_number < 0)
+				printf("counter_number = %d\n",counter_number);
+				//counter_number *= 3;
+				if(counter_number >= 666|| counter_number < 0)
 				{
 					//printf("Trim %d\n",counter_number);
 					counter_number = 0;
@@ -223,7 +218,10 @@ void Motor_duty_control()
 		}
 		if((acc_z<=0) || (iic_status == 0))
 			counter_number = 0;
+		counter_number_ex = counter_number;
+		//printf("counter_number = %d\n",counter_number);
 		//printf("counter_number = %d ,Duty = %f,compAngleY = %lf,Y_Angular_velocity = %f,ABS(compAngleY) = %f\n",counter_number,Duty,compAngleY,Y_Angular_velocity,ABS(compAngleY));
+		TIM_Cmd(TIM4, DISABLE);
 		TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 		
@@ -648,20 +646,20 @@ void EXTI1_IRQHandler(void)
 		EXTI_ClearITPendingBit(EXTI_Line1);
 }
 
-void USART1_IRQHandler(){
+void USART3_IRQHandler(){
 		static unsigned char GetData;
 		ble_lock = 0;
-		if(USART_GetFlagStatus(USART1,USART_FLAG_TC)!=RESET)
-				USART_ClearITPendingBit(USART1,USART_FLAG_TC);
-		if((USART_GetFlagStatus(USART1,USART_FLAG_RXNE)!=RESET)){
-				USART_ClearITPendingBit(USART1,USART_FLAG_RXNE);
-				 GetData = USART_ReceiveData(USART1);
+		if(USART_GetFlagStatus(USART3,USART_FLAG_TC)!=RESET)
+				USART_ClearITPendingBit(USART3,USART_FLAG_TC);
+		if((USART_GetFlagStatus(USART3,USART_FLAG_RXNE)!=RESET)){
+				USART_ClearITPendingBit(USART3,USART_FLAG_RXNE);
+				 GetData = USART_ReceiveData(USART3);
 			if(GetData){
 				if(GetData == '0')
 					ble_lock = FALSE ;
 				else if(GetData >= '1' && GetData <='8')
 					ble_lock = TRUE ;
-				//printf("GetData = %c\n",GetData);
+				printf("GetData = %c\n",GetData);
 				dir = GetData;
 			}
 		}
